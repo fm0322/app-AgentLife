@@ -62,7 +62,6 @@ export function useAgentState() {
     if (!agent || agent.status !== 'idle') return;
     dispatch({ type: 'DISPATCH', agentId });
     addEvent('dispatch', agent.emoji, `${agent.name} dispatched to ${agent.stationLabel}`);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agents]);
 
   const dispatchAll = useCallback(() => {
@@ -70,7 +69,6 @@ export function useAgentState() {
     if (idle.length === 0) return;
     dispatch({ type: 'DISPATCH_ALL' });
     addEvent('dispatch', '🚀', `Orchestrator dispatched ${idle.length} agent${idle.length > 1 ? 's' : ''}`);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agents]);
 
   const onArrivedAtStation = useCallback((agentId) => {
@@ -81,14 +79,12 @@ export function useAgentState() {
     workTimers.current[agentId] = setTimeout(() => {
       dispatch({ type: 'DONE_WORKING', agentId });
     }, duration);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agents]);
 
   const onArrivedAtBreak = useCallback((agentId) => {
     dispatch({ type: 'ARRIVED_AT_BREAK', agentId });
     const agent = agents.find((a) => a.id === agentId);
     if (agent) addEvent('idle', agent.emoji, `${agent.name} returned to break room`);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agents]);
 
   return { agents, events, dispatchAgent, dispatchAll, onArrivedAtStation, onArrivedAtBreak };

@@ -1,16 +1,40 @@
-# React + Vite
+# 🤖 GitHub Copilot Agent Office
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React app that visualizes your GitHub Copilot CLI agents as animated office workers in a 2D office scene.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Animated Characters** — Each agent is rendered as a walking stick-figure office worker with their own color and emoji label.
+- **Office Layout** — A break room (green zone, left) where idle agents relax, and a work area (right) with individual labeled desks/stations.
+- **State Machine** — Every agent cycles through four states:
+  - 🟡 **Idle** — Relaxing in the break room
+  - 🔵 **Walking ↗** — Animated walk to their work station
+  - 🟢 **Working ⚡** — Typing animation at their desk, task badge shown
+  - 🟣 **Returning ↙** — Walking back to the break room
+- **Orchestrator Agent** — The central 🎯 Orchestrator sits at the Command Center and dispatches sub-agents.
+- **Sub-Agents** — Code Writer 💻, Reviewer 🔍, Test Runner 🧪, Docs Writer 📝, Researcher 🔬
+- **Control Panel** — Dispatch individual agents or all idle agents at once.
+- **Activity Log** — Real-time log of agent dispatches and task completions.
+- **Auto-Sim Mode** — Toggle to automatically dispatch idle agents on a timer for a continuous simulation.
 
-## React Compiler
+## Running Locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Build
+
+```bash
+npm run build
+npm run preview
+```
+
+## Tech Stack
+
+- [React 19](https://react.dev/) + [Vite 8](https://vite.dev/)
+- Pure CSS animations (no animation library needed)
+- CSS transitions for smooth agent walking

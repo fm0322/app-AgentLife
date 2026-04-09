@@ -26,7 +26,8 @@ export default function AgentCharacter({ agent, onArrivedAtStation, onArrivedAtB
   const facingLeft = agent.facing === 'left';
 
   function handleTransitionEnd(e) {
-    if (e.propertyName !== 'left' && e.propertyName !== 'top') return;
+    // Only react to the 'left' transition to avoid double-firing (left + top both transition)
+    if (e.propertyName !== 'left') return;
     if (agent.status === 'walking-to-work')  onArrivedAtStation(agent.id);
     if (agent.status === 'walking-to-break') onArrivedAtBreak(agent.id);
   }

@@ -27,6 +27,14 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
+## Workspace and Log Directory Configuration
+
+- This app does **not** set the Copilot workspace path.
+- The workspace is determined by where you launch Copilot CLI. Run Copilot from the target repository/folder you want agents to use.
+- In this app, click **Configure Log Path** and choose the folder where Copilot writes `process-*.log` files.
+- Click **Start Copilot Stream** to auto-follow the newest `process-*.log` in that folder.
+- If you get "No process log found", choose the parent folder that actually contains files like `process-1234.log`.
+
 To stream real Copilot logs:
 1. Click **Configure Log Path** and select the folder containing Copilot CLI logs.
 2. Click **Start Copilot Stream**.

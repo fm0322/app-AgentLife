@@ -117,7 +117,7 @@ export default function App() {
 
     const latest = await pickLatestProcessLogFile(directory);
     if (!latest) {
-      setStreamError('No process log found. Expected files like process-1234.log. Select the parent folder where those files are written.');
+      setStreamError('No process log found. Expected files matching process-*.log in the selected directory. Select the parent folder containing those log files.');
       return;
     }
 

@@ -33,7 +33,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - The workspace is determined by where you launch Copilot CLI. Run Copilot from the target repository/folder you want agents to use.
 - In this app, click **Configure Log Path** and choose the folder where Copilot writes `process-*.log` files.
 - Click **Start Copilot Stream** to auto-follow the newest `process-*.log` in that folder.
-- If you get "No process log found", choose the parent folder that actually contains files like `process-1234.log`.
+- If you get "No process log found", choose the parent folder that contains files matching `process-*.log`.
 
 To stream real Copilot logs:
 1. Click **Configure Log Path** and select the folder containing Copilot CLI logs.

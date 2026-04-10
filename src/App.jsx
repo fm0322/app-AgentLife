@@ -35,7 +35,10 @@ export default function App() {
 
   const formatTrackedPath = (path) => {
     if (!path) return 'Not configured';
-    return path.length > MAX_PATH_DISPLAY_LENGTH ? `…${path.slice(-MAX_PATH_DISPLAY_LENGTH)}` : path;
+    if (path.length <= MAX_PATH_DISPLAY_LENGTH) return path;
+    const parts = path.split('/');
+    if (parts.length >= 2) return `…/${parts.slice(-2).join('/')}`;
+    return `…${path.slice(-MAX_PATH_DISPLAY_LENGTH)}`;
   };
 
   const handleArrivedAtStation = useCallback(
@@ -130,7 +133,7 @@ export default function App() {
         const text = await activeFile.text();
 
         // Handle file truncation where the file shrinks between polls.
-        // Session state is intentionally preserved to continue streaming in place.
+        // Only the tail cursor resets; lifecycle state is preserved to continue streaming in place.
         if (text.length < tailStateRef.current.offset) {
           tailStateRef.current = { offset: 0, buffer: '' };
         }
@@ -201,7 +204,9 @@ export default function App() {
             </span>
           </label>
           <div className="app-header__status">
-            <span title={trackedLogFileName}>Log: {formatTrackedPath(trackedLogFileName)}</span>
+            <span title={trackedLogFileName} aria-label={trackedLogFileName ? `Log file path ${trackedLogFileName}` : 'Log file path not configured'}>
+              Log: {formatTrackedPath(trackedLogFileName)}
+            </span>
             <span>
               Session: {copilotState.status}
               {copilotState.currentAgent ? ` (${copilotState.currentAgent})` : ''}

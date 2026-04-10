@@ -183,7 +183,10 @@ export function useAgentState() {
       normalizeAgentId(previousAgent) !== normalizeAgentId(resolvedAgent)
     );
     // A new start means the current entry should be treated as this agent's start event.
-    const isNewAgentStart = Boolean(resolvedAgent && previousAgent !== resolvedAgent);
+    const isNewAgentStart = Boolean(
+      resolvedAgent &&
+      normalizeAgentId(previousAgent) !== normalizeAgentId(resolvedAgent)
+    );
 
     if (isAgentSwitch) {
       addEvent('handoff', '🔁', `Handoff: ${previousAgent} → ${resolvedAgent}`);

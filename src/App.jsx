@@ -80,7 +80,7 @@ export default function App() {
 
   const pickLatestProcessLogFile = useCallback(async (directoryHandle) => {
     let latest = null;
-    const pattern = /^process-\d+\.log$/i;
+    const pattern = /^process-\d+(?:-\d+)?\.log$/i;
     for await (const [name, handle] of directoryHandle.entries()) {
       if (handle.kind !== 'file' || !pattern.test(name)) continue;
       const file = await handle.getFile();

@@ -8,6 +8,7 @@ import ActivityLog from './components/ActivityLog';
 import './App.css';
 
 export default function App() {
+  const MAX_PATH_DISPLAY_LENGTH = 48;
   const {
     agents,
     events,
@@ -26,10 +27,16 @@ export default function App() {
   const [logDirectoryHandle, setLogDirectoryHandle] = useState(null);
   const [trackedLogFileName, setTrackedLogFileName] = useState('');
   const [streamError, setStreamError] = useState('');
+  const pollIntervalMs = 1000;
   const autoTimerRef = useRef(null);
   const tailTimerRef = useRef(null);
   const tailStateRef = useRef({ offset: 0, buffer: '' });
   const fileHandleRef = useRef(null);
+
+  const formatTrackedPath = (path) => {
+    if (!path) return 'Not configured';
+    return path.length > MAX_PATH_DISPLAY_LENGTH ? `…${path.slice(-MAX_PATH_DISPLAY_LENGTH)}` : path;
+  };
 
   const handleArrivedAtStation = useCallback(
     (id) => onArrivedAtStation(id),
@@ -84,7 +91,7 @@ export default function App() {
   const configureLogDirectory = useCallback(async () => {
     setStreamError('');
     if (!window.showDirectoryPicker) {
-      setStreamError('Directory picker is not supported in this browser.');
+      setStreamError('Directory picker requires a Chromium-based browser (Chrome, Edge, etc.).');
       return;
     }
     const directory = await window.showDirectoryPicker({ mode: 'read' });
@@ -122,6 +129,8 @@ export default function App() {
         const activeFile = await fileHandleRef.current.getFile();
         const text = await activeFile.text();
 
+        // Handle file truncation where the file shrinks between polls.
+        // Session state is intentionally preserved to continue streaming in place.
         if (text.length < tailStateRef.current.offset) {
           tailStateRef.current = { offset: 0, buffer: '' };
         }
@@ -143,15 +152,16 @@ export default function App() {
             // ignore malformed lines
           }
         }
-      } catch {
-        setStreamError('Failed reading log file. Reconfigure path and retry.');
+      } catch (error) {
+        const details = error instanceof Error ? error.message : String(error || 'unknown error');
+        setStreamError(`Failed reading log file: ${details}`);
         stopTailing();
       }
     };
 
     await readTick();
     if (tailTimerRef.current) clearInterval(tailTimerRef.current);
-    tailTimerRef.current = setInterval(readTick, 1000);
+    tailTimerRef.current = setInterval(readTick, pollIntervalMs);
   }, [ingestCopilotEntry, logDirectoryHandle, pickLatestProcessLogFile, stopTailing]);
 
   return (
@@ -180,6 +190,7 @@ export default function App() {
               type="checkbox"
               checked={autoSim}
               disabled={isStreaming}
+              title={isStreaming ? 'Disabled during Copilot stream' : undefined}
               onChange={(e) => setAutoSim(e.target.checked)}
             />
             <span className="auto-sim-toggle__track">
@@ -190,7 +201,7 @@ export default function App() {
             </span>
           </label>
           <div className="app-header__status">
-            <span>Log: {trackedLogFileName || 'Not configured'}</span>
+            <span title={trackedLogFileName}>Log: {formatTrackedPath(trackedLogFileName)}</span>
             <span>
               Session: {copilotState.status}
               {copilotState.currentAgent ? ` (${copilotState.currentAgent})` : ''}

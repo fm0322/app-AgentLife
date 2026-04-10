@@ -13,7 +13,7 @@ function now() {
   return new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-function isoNow() {
+function getCurrentIsoTimestamp() {
   return new Date().toISOString();
 }
 
@@ -160,7 +160,7 @@ export function useAgentState() {
   }, [agents]);
 
   const updateSessionState = useCallback((nextPartial) => {
-    const next = { ...lifecycleRef.current, ...nextPartial, lastUpdatedAt: isoNow() };
+    const next = { ...lifecycleRef.current, ...nextPartial, lastUpdatedAt: getCurrentIsoTimestamp() };
     lifecycleRef.current = next;
     setCopilotState(next);
   }, []);
@@ -173,17 +173,26 @@ export function useAgentState() {
     const previousAgent = lifecycleRef.current.currentAgent;
     const resolvedAgent = resolveActiveAgent(entry.message, previousAgent);
     const knownAgent = findKnownAgent(resolvedAgent);
-    const finishReason = typeof entry.finish_reason === 'string' ? entry.finish_reason : '';
+    const reason = typeof entry.finish_reason === 'string' ? entry.finish_reason : '';
     const refusal = entry?.message?.refusal;
 
-    if (previousAgent && resolvedAgent && previousAgent !== resolvedAgent) {
+    // A switch means we are handing off from one active agent to another.
+    const isAgentSwitch = Boolean(
+      previousAgent &&
+      resolvedAgent &&
+      normalizeAgentId(previousAgent) !== normalizeAgentId(resolvedAgent)
+    );
+    // A new start means the current entry should be treated as this agent's start event.
+    const isNewAgentStart = Boolean(resolvedAgent && previousAgent !== resolvedAgent);
+
+    if (isAgentSwitch) {
       addEvent('handoff', '🔁', `Handoff: ${previousAgent} → ${resolvedAgent}`);
       addEvent('completed', '✅', `${previousAgent} marked done (handoff)`);
-      const prevKnownAgent = findKnownAgent(previousAgent);
-      if (prevKnownAgent) dispatch({ type: 'LOG_IDLE', agentId: prevKnownAgent.id });
+      const previousKnown = findKnownAgent(previousAgent);
+      if (previousKnown) dispatch({ type: 'LOG_IDLE', agentId: previousKnown.id });
     }
 
-    if (resolvedAgent && previousAgent !== resolvedAgent) {
+    if (isNewAgentStart) {
       addEvent('started', '🚀', `${resolvedAgent} started`);
       if (knownAgent) {
         dispatch({
@@ -195,7 +204,7 @@ export function useAgentState() {
       updateSessionState({
         currentAgent: resolvedAgent,
         status: 'working',
-        startedAt: isoNow(),
+        startedAt: getCurrentIsoTimestamp(),
         lastIndex: typeof entry.index === 'number' ? entry.index : lifecycleRef.current.lastIndex,
       });
     } else if (resolvedAgent) {
@@ -218,8 +227,9 @@ export function useAgentState() {
       });
     }
 
-    if (refusal || finishReason === 'error') {
-      addEvent('failed', '❌', `${resolvedAgent || previousAgent || 'Agent'} failed`);
+    if (refusal || reason === 'error') {
+      const failureSource = refusal || reason || 'unknown';
+      addEvent('failed', '❌', `${resolvedAgent || previousAgent || 'Agent'} failed: ${failureSource}`);
       updateSessionState({
         status: 'failed',
         currentAgent: resolvedAgent || previousAgent || null,
@@ -228,7 +238,7 @@ export function useAgentState() {
       return;
     }
 
-    if (finishReason === 'stop') {
+    if (reason === 'stop') {
       const completedAgent = resolvedAgent || previousAgent;
       if (completedAgent) {
         addEvent('completed', '✅', `${completedAgent} completed`);
@@ -247,7 +257,7 @@ export function useAgentState() {
   const finalizeCopilotSession = useCallback(() => {
     const active = lifecycleRef.current.currentAgent;
     if (!active) {
-      updateSessionState({ status: 'idle', lastUpdatedAt: isoNow() });
+      updateSessionState({ status: 'idle', lastUpdatedAt: getCurrentIsoTimestamp() });
       return;
     }
     addEvent('completed', '✅', `${active} completed (session ended)`);
@@ -257,7 +267,7 @@ export function useAgentState() {
       currentAgent: null,
       status: 'done',
       startedAt: null,
-      lastUpdatedAt: isoNow(),
+      lastUpdatedAt: getCurrentIsoTimestamp(),
     });
   }, [findKnownAgent, updateSessionState]);
 

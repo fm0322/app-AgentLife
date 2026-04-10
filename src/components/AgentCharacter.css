@@ -1,0 +1,152 @@
+/* ── AgentCharacter.css ───────────────────────────────────────────── */
+
+/* ---- base agent wrapper ------------------------------------------ */
+.agent {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: default;
+  user-select: none;
+  z-index: 10;
+  /* walking transition */
+  transition: left var(--walk-ms, 2200ms) ease-in-out,
+              top  var(--walk-ms, 2200ms) ease-in-out,
+              transform 0.3s ease;
+}
+
+/* ---- name label ---------------------------------------------------- */
+.agent__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  padding: 2px 7px 2px 5px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.4;
+}
+
+.agent__emoji {
+  font-size: 13px;
+}
+
+.agent__task-badge {
+  background: var(--color, #6366f1);
+  color: white;
+  font-size: 9px;
+  border-radius: 6px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  font-weight: 600;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- SVG sprite ---------------------------------------------------- */
+.agent__sprite {
+  display: block;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.25));
+}
+
+/* ---- leg / arm helpers -------------------------------------------- */
+/* SVG rect elements can't use % transform-origin in all browsers,
+   so we rely on transform-box: fill-box to anchor at the element's
+   own bounding box center top.                                        */
+.ll, .rl, .la, .ra {
+  transform-box: fill-box;
+}
+.ll { transform-origin: 50% 0%; }
+.rl { transform-origin: 50% 0%; }
+.la { transform-origin: 50% 0%; }
+.ra { transform-origin: 50% 0%; }
+
+/* ━━━ WALKING animation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes legSwingFwd {
+  0%, 100% { transform: rotate(-22deg); }
+  50%       { transform: rotate(22deg);  }
+}
+@keyframes legSwingBwd {
+  0%, 100% { transform: rotate(22deg);  }
+  50%       { transform: rotate(-22deg); }
+}
+@keyframes bodyBob {
+  0%, 100% { transform: translateY(0);    }
+  50%       { transform: translateY(-4px); }
+}
+
+.agent__sprite--walking .ll { animation: legSwingFwd 0.42s ease-in-out infinite; }
+.agent__sprite--walking .rl { animation: legSwingBwd 0.42s ease-in-out infinite; }
+.agent__sprite--walking .la { animation: legSwingBwd 0.42s ease-in-out infinite; }
+.agent__sprite--walking .ra { animation: legSwingFwd 0.42s ease-in-out infinite; }
+.agent__sprite--walking     { animation: bodyBob     0.42s ease-in-out infinite; }
+
+/* ━━━ WORKING animation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes typeLeft {
+  0%, 100% { transform: rotate(-18deg) translateY(-3px); }
+  50%       { transform: rotate(8deg)  translateY(2px);  }
+}
+@keyframes typeRight {
+  0%, 100% { transform: rotate(18deg)  translateY(-3px); }
+  50%       { transform: rotate(-8deg) translateY(2px);  }
+}
+@keyframes nod {
+  0%, 100% { transform: rotate(-3deg); }
+  50%       { transform: rotate(3deg);  }
+}
+
+.agent__sprite--working .la { animation: typeLeft  0.28s ease-in-out infinite; }
+.agent__sprite--working .ra { animation: typeRight 0.28s ease-in-out infinite; }
+
+/* ━━━ IDLE animation ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes breathe {
+  0%, 100% { transform: translateY(0) scaleY(1);   }
+  50%       { transform: translateY(-1px) scaleY(1.02); }
+}
+@keyframes idleArmSway {
+  0%, 100% { transform: rotate(0deg);   }
+  50%       { transform: rotate(8deg);  }
+}
+@keyframes idleArmSway2 {
+  0%, 100% { transform: rotate(0deg);   }
+  50%       { transform: rotate(-8deg); }
+}
+
+.agent__sprite--idle { animation: breathe 3s ease-in-out infinite; }
+.agent__sprite--idle .la { animation: idleArmSway  3s ease-in-out infinite; }
+.agent__sprite--idle .ra { animation: idleArmSway2 3s ease-in-out infinite; }
+
+/* ━━━ Orchestrator pulse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes pulse-ring {
+  0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0;   }
+}
+
+.agent__dispatch-pulse {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2.5px solid var(--color, #818cf8);
+  top: 50%;
+  left: 50%;
+  animation: pulse-ring 1.4s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ━━━ Orchestrator highlight ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.agent--orchestrator .agent__sprite {
+  filter: drop-shadow(0 0 8px var(--color)) drop-shadow(0 3px 5px rgba(0,0,0,0.3));
+}
+
+/* ━━━ Orchestrator always-on typing animation ━━━━━━━━━━━━━━━━━━━━━ */
+.agent__sprite--orchestrator .la { animation: typeLeft  0.6s ease-in-out infinite; }
+.agent__sprite--orchestrator .ra { animation: typeRight 0.6s ease-in-out infinite; }

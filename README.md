@@ -16,7 +16,7 @@ A React app that visualizes your GitHub Copilot CLI agents as animated office wo
 - **Control Panel** — Dispatch individual agents or all idle agents at once.
 - **Activity Log** — Real-time log of agent dispatches and task completions.
 - **Auto-Sim Mode** — Toggle to automatically dispatch idle agents on a timer for a continuous simulation.
-- **Copilot Log Streaming** — Configure a log directory, auto-pick the latest `process-XXXX.log`, and stream lifecycle events from Copilot CLI output in real time.
+- **Copilot Log Streaming** — Configure a log directory, auto-pick the latest `process-1234.log`-style file, and stream lifecycle events from Copilot CLI output in real time.
 
 ## Running Locally
 

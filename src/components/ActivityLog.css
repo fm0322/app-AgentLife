@@ -71,3 +71,7 @@
 .activity-log__item--working   .activity-log__message { color: #4ade80; }
 .activity-log__item--returning .activity-log__message { color: #c084fc; }
 .activity-log__item--idle      .activity-log__message { color: #94a3b8; }
+.activity-log__item--started   .activity-log__message { color: #38bdf8; }
+.activity-log__item--completed .activity-log__message { color: #34d399; }
+.activity-log__item--handoff   .activity-log__message { color: #fbbf24; }
+.activity-log__item--failed    .activity-log__message { color: #f87171; }
